@@ -1,3 +1,4 @@
+JSON = (loadfile "JSON.lua")()
 color = {}
 
 --functions
@@ -28,6 +29,24 @@ color.brightness = function(c, p) --color.adjust(c, h, s, b/v, a)
 			if nc[k]<0 then nc[k]=0 end
 	end
 	return nc
+end
+
+color.rgb2hex = function(r)
+	local h = {}
+
+	return h
+end
+
+color.hex2rpg = function(h)
+	local r = {}
+
+	return r
+end
+
+color.getthemedata = function(t)
+	local tData = {}
+
+	return tData
 end
 
 --X11
