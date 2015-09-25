@@ -6,6 +6,7 @@ Oppimize the dragging code
 work on menus
 	add/remove windows
 	change color theme
+	save/load
 add components to windows
 	move components around in window
 draw lines between components, but outside windows

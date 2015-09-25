@@ -2,36 +2,37 @@ JSON = (loadfile "JSON.lua")()
 color = (loadfile "colors.lua")()
 
 function love.load()
-	windows = {}
+	--starting test windows
+	windows = {	
+		{
+		title = "window1", cn = 1, x = 10, y = 10, w = 100, h = 100, 
+		dragging = { active = false, diffX = 0, diffY = 0 }
+		},
+		{
+		title = "window2", cn = 4, x = 10, y = 120, w = 100, h = 100,
+		dragging = { active = false, diffX = 0, diffY = 0 }
+		},
+		{
+		title = "window3", cn = 7, x = 10, y = 230, w = 100, h = 100,
+		dragging = { active = false, diffX = 0, diffY = 0 }
+		},
+		{
+		title = "window4", cn = 10, x = 10, y = 340, w = 100, h = 100,
+		dragging = { active = false, diffX = 0, diffY = 0 }
+		},
+		{
+		title = "window5", cn = 13, x = 10, y = 450, w = 100, h = 100,
+		dragging = { active = false, diffX = 0, diffY = 0 }
+		}
+	}
 
-	windows[1] = {
-		title = "window1",
-		cn = 1,
-		x = 100,
-		y = 100,
-		w = 100,
-		h = 100,
-		dragging = { active = false, diffX = 0, diffY = 0 }
-	}
-	windows[2] = {
-		title = "window2",
-		cn = 4,
-		x = 300,
-		y = 100,
-		w = 100,
-		h = 100,
-		dragging = { active = false, diffX = 0, diffY = 0 }
-	}
-
-	--[[original drag code
-	rect = {
-		x = 100,
-		y = 100,
-		width = 100,
-		height = 100,
-		dragging = { active = false, diffX = 0, diffY = 0 }
-	}
-	--]]
+	--starting Z level for windows
+	winZLvl = {}
+	local i = 1
+	for k,v in pairs(windows) do
+		winZLvl[i] = k
+		i = i+1
+	end
 
 	colortheme = color.set.earthtone
 	love.graphics.setLineWidth(1)
@@ -52,86 +53,80 @@ function love.load()
 
 	--love.graphics.print(lua_value.x, 400, 300)
 	love.graphics.setBackgroundColor(colortheme[1])
+	--dragging = false
 
 	debugline = "debugline"
 
 end
 
 function love.draw()
-	--lua_value.x = rect.x
-	--love.graphics.print(lua_value.x, 400, 300)
-
 	--[[
-	local wincolor = color.SpringGreen
-	love.graphics.setColor( color.brightness(wincolor,.75))
-	love.graphics.rectangle("fill", rect.x, rect.y, rect.width, rect.height)
-	love.graphics.setColor( wincolor)
-	love.graphics.rectangle("fill", rect.x+5, rect.y+5, rect.width-10, rect.height-90)
-	love.graphics.setColor( color.brightness(wincolor,1.25))
-	love.graphics.rectangle("fill", rect.x+5, rect.y+20, rect.width-10, rect.height-25)
-	--]]
-
-	--local wincolorset = color.set.cool
-
-	--[[original drag code
-	local colornum = 1
-	love.graphics.setColor( colortheme[colornum])
-	love.graphics.rectangle("fill", rect.x, rect.y, rect.width, rect.height)
-	love.graphics.setColor( colortheme[colornum+1])
-	love.graphics.rectangle("fill", rect.x+5, rect.y+5, rect.width-10, rect.height-90)
-	love.graphics.rectangle("line", rect.x, rect.y, rect.width, rect.height)
-	love.graphics.setColor( colortheme[colornum+2])
-	love.graphics.rectangle("fill", rect.x+5, rect.y+20, rect.width-10, rect.height-25)
-	love.graphics.print("Window", rect.x+5, rect.y+5)
-	--]]
-
 	for k,v in  pairs(windows) do
 		drawwindow(v.x,v.y,v.w,v.h,v.cn,v.title)
 	end
-	--[[
-	drawwindow(10,10,100,100,1)
-	drawwindow(120,10,100,100,2)
-	drawwindow(230,10,100,100,3)
-	drawwindow(340,10,100,100,4)
-	drawwindow(450,10,100,100,5)
 	--]]
+	for i=1,#winZLvl, 1 do
+		for k,v in  pairs(windows) do
+			if winZLvl[i] == k then
+				drawwindow(v.x,v.y,v.w,v.h,v.cn,v.title)
+				--print(winZLvl[i] .. ":" .. k .. ":" .. v.title)
+			end
+		end
+	end
+
+	--draw lines next
 
 	love.graphics.print(debugline, 10, love.graphics.getHeight() - 20)
 end
 
 function love.mousepressed(x, y, button)
-	--[[original drag code
-	if button == "l"
-	and x > rect.x and x < rect.x + rect.width
-	and y > rect.y and y < rect.y + rect.height
-	then
-		rect.dragging.active = true
-		rect.dragging.diffX = x - rect.x
-		rect.dragging.diffY = y - rect.y
-  	end
-	--]]
 	debugline = "mousepressed: " .. x .. y .. button
   	if button == "l"
   		then
+  		for i=1,#winZLvl, 1 do
+  			debugline = ( x .. " " .. y .. " " .. button .. "," .. winZLvl[i] .. " " .. windows[winZLvl[i]].title ..
+  				":" .. windows[winZLvl[i]].x .. " " .. windows[winZLvl[i]].x + windows[winZLvl[i]].w  .. "," ..
+  					   windows[winZLvl[i]].y .. " " .. windows[winZLvl[i]].y + windows[winZLvl[i]].h)
+
+			if x > windows[winZLvl[i]].x and x < windows[winZLvl[i]].x + windows[winZLvl[i]].w 
+				and y > windows[winZLvl[i]].y and y < windows[winZLvl[i]].y + windows[winZLvl[i]].h 
+			then
+  				--print( x .. y .. button .. ":" .. winZLvl[i] .. " " .. windows[winZLvl[i]].title)
+
+  				windows[winZLvl[i]].dragging.active = true
+  				windows[winZLvl[i]].dragging.diffX = x - windows[winZLvl[i]].x
+  				windows[winZLvl[i]].dragging.diffY = y - windows[winZLvl[i]].y
+
+  				table.insert(winZLvl, #winZLvl, table.remove(winZLvl, i))
+  				debugline = "WindowOrder: " .. winZLvl[1] .. winZLvl[2] .. winZLvl[3] .. winZLvl[4] .. winZLvl[5]
+  				break
+			end
+		end
+
+  		--[[
   		for k,v in  pairs(windows) do
   			if x > v.x and x < v.x + v.w and y > v.y and y < v.y + v.h
   				then
   				v.dragging.active = true
   				v.dragging.diffX = x - v.x
   				v.dragging.diffY = y - v.y
+  				--[[
+  				for k1,v1 in pairs(winZLvl) do
+  					if v1==k then
+  						table.insert(winZLvl, #winZLvl, table.remove(winZLvl, v1))
+  					break
+  					end
+  				end
+  				
+  				debugline = "WindowOrder: " .. winZLvl[1] .. winZLvl[2] .. winZLvl[3] .. winZLvl[4] .. winZLvl[5]
+  				break
   			end
   		end
+  		--]]
 	end
 end
 
 function love.update(dt)
-	--[[original drag code
-	if rect.dragging.active then
-		rect.x = love.mouse.getX() - rect.dragging.diffX
-		rect.y = love.mouse.getY() - rect.dragging.diffY
-	end
-	--]]
-
 	for k,v in  pairs(windows) do
   		if v.dragging.active == true
   			then
@@ -142,10 +137,7 @@ function love.update(dt)
 end
 
 function love.mousereleased(x, y, button)
-	if button == "l" then 
-		--[[original drag code
-		rect.dragging.active = false 
-		--]]
+	if button == "l" then
 		for k,v in  pairs(windows) do
   				v.dragging.active = false
   		end
@@ -161,4 +153,5 @@ function drawwindow(x,y,h,w,cn,t)
 	love.graphics.setColor( colortheme[cn+2])
 	love.graphics.rectangle("fill", x+5, y+20, w-10, h-25)
 	if t ~= nil then love.graphics.print(t, x+5, y+5) end
+	--TODO add component drawing here
 end
