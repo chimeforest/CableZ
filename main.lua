@@ -23,7 +23,7 @@ function love.load()
 		dragging = { active = false, diffX = 0, diffY = 0 }
 	}
 
-
+	--[[original drag code
 	rect = {
 		x = 100,
 		y = 100,
@@ -31,6 +31,7 @@ function love.load()
 		height = 100,
 		dragging = { active = false, diffX = 0, diffY = 0 }
 	}
+	--]]
 
 	colortheme = color.set.earthtone
 	love.graphics.setLineWidth(1)
@@ -52,6 +53,8 @@ function love.load()
 	--love.graphics.print(lua_value.x, 400, 300)
 	love.graphics.setBackgroundColor(colortheme[1])
 
+	debugline = "debugline"
+
 end
 
 function love.draw()
@@ -69,6 +72,8 @@ function love.draw()
 	--]]
 
 	--local wincolorset = color.set.cool
+
+	--[[original drag code
 	local colornum = 1
 	love.graphics.setColor( colortheme[colornum])
 	love.graphics.rectangle("fill", rect.x, rect.y, rect.width, rect.height)
@@ -78,9 +83,9 @@ function love.draw()
 	love.graphics.setColor( colortheme[colornum+2])
 	love.graphics.rectangle("fill", rect.x+5, rect.y+20, rect.width-10, rect.height-25)
 	love.graphics.print("Window", rect.x+5, rect.y+5)
+	--]]
 
 	for k,v in  pairs(windows) do
-		print(v.cn)
 		drawwindow(v.x,v.y,v.w,v.h,v.cn,v.title)
 	end
 	--[[
@@ -90,9 +95,12 @@ function love.draw()
 	drawwindow(340,10,100,100,4)
 	drawwindow(450,10,100,100,5)
 	--]]
+
+	love.graphics.print(debugline, 10, love.graphics.getHeight() - 20)
 end
 
 function love.mousepressed(x, y, button)
+	--[[original drag code
 	if button == "l"
 	and x > rect.x and x < rect.x + rect.width
 	and y > rect.y and y < rect.y + rect.height
@@ -101,17 +109,47 @@ function love.mousepressed(x, y, button)
 		rect.dragging.diffX = x - rect.x
 		rect.dragging.diffY = y - rect.y
   	end
+	--]]
+	debugline = "mousepressed: " .. x .. y .. button
+  	if button == "l"
+  		then
+  		for k,v in  pairs(windows) do
+  			if x > v.x and x < v.x + v.w and y > v.y and y < v.y + v.h
+  				then
+  				v.dragging.active = true
+  				v.dragging.diffX = x - v.x
+  				v.dragging.diffY = y - v.y
+  			end
+  		end
+	end
 end
 
 function love.update(dt)
+	--[[original drag code
 	if rect.dragging.active then
 		rect.x = love.mouse.getX() - rect.dragging.diffX
 		rect.y = love.mouse.getY() - rect.dragging.diffY
 	end
+	--]]
+
+	for k,v in  pairs(windows) do
+  		if v.dragging.active == true
+  			then
+  			v.x = love.mouse.getX() - v.dragging.diffX
+			v.y = love.mouse.getY() - v.dragging.diffY
+		end
+  	end
 end
 
 function love.mousereleased(x, y, button)
-	if button == "l" then rect.dragging.active = false end
+	if button == "l" then 
+		--[[original drag code
+		rect.dragging.active = false 
+		--]]
+		for k,v in  pairs(windows) do
+  				v.dragging.active = false
+  		end
+	end
 end
 
 function drawwindow(x,y,h,w,cn,t)

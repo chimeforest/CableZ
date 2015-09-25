@@ -1,0 +1,18 @@
+TODO
+
+Stop windows from overlapping
+Oppimize the dragging code
+
+work on menus
+	add/remove windows
+	change color theme
+add components to windows
+	move components around in window
+draw lines between components, but outside windows
+
+fiddle some more with colorthemes
+	rgb2hex
+	hex2rgb
+	getthemeinfo
+	createtheme
+	savethemeinfo to json

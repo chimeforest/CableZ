@@ -1,0 +1,7 @@
+NOTES
+
+Versioning: [a.b.c:d]
+	a = Major release! like.. 1 will be when the program in finished, A = Alpha, B=Beta, beta is when it is mostly done except for debuging
+	b = Minor Update, features added/removed
+	c = bug fix and/or minor tweaking, nothing substantial added/removed.
+	d = running number of releases
