@@ -1,0 +1,15 @@
+CODE SNIPLETTS
+
+--JSON
+	--JSON.lua testing
+	pretty_json_text = JSON:encode_pretty(rect)
+	--print(pretty_json_text)
+	file = io.open ("pretty.json", "w+")
+	io.output(file)
+	io.write(pretty_json_text)
+	io.close(file)
+	--print("File written")
+	
+
+	lua_value = JSON:decode(pretty_json_text) -- decode example
+	--]]

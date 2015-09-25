@@ -37,34 +37,20 @@ function love.load()
 	colortheme = color.set.earthtone
 	love.graphics.setLineWidth(1)
 	love.graphics.setLineStyle("rough")
-	--[[
-	--JSON.lua testing
-	pretty_json_text = JSON:encode_pretty(rect)
-	--print(pretty_json_text)
-	file = io.open ("pretty.json", "w+")
-	io.output(file)
-	io.write(pretty_json_text)
-	io.close(file)
-	--print("File written")
 	
 
-	lua_value = JSON:decode(pretty_json_text) -- decode example
-	--]]
-
-	--love.graphics.print(lua_value.x, 400, 300)
 	love.graphics.setBackgroundColor(colortheme[1])
-	--dragging = false
+
+	dragging = false
+	dragWin = nil
+	dragX = 0
+	dragY = 0
 
 	debugline = "debugline"
 
 end
 
 function love.draw()
-	--[[
-	for k,v in  pairs(windows) do
-		drawwindow(v.x,v.y,v.w,v.h,v.cn,v.title)
-	end
-	--]]
 	for i=1,#winZLvl, 1 do
 		for k,v in  pairs(windows) do
 			if winZLvl[i] == k then
@@ -83,7 +69,7 @@ function love.mousepressed(x, y, button)
 	debugline = "mousepressed: " .. x .. y .. button
   	if button == "l"
   		then
-  		for i=1,#winZLvl, 1 do
+  		for i=#winZLvl,1, -1 do
   			debugline = ( x .. " " .. y .. " " .. button .. "," .. winZLvl[i] .. " " .. windows[winZLvl[i]].title ..
   				":" .. windows[winZLvl[i]].x .. " " .. windows[winZLvl[i]].x + windows[winZLvl[i]].w  .. "," ..
   					   windows[winZLvl[i]].y .. " " .. windows[winZLvl[i]].y + windows[winZLvl[i]].h)
@@ -91,42 +77,28 @@ function love.mousepressed(x, y, button)
 			if x > windows[winZLvl[i]].x and x < windows[winZLvl[i]].x + windows[winZLvl[i]].w 
 				and y > windows[winZLvl[i]].y and y < windows[winZLvl[i]].y + windows[winZLvl[i]].h 
 			then
-  				--print( x .. y .. button .. ":" .. winZLvl[i] .. " " .. windows[winZLvl[i]].title)
-
-  				windows[winZLvl[i]].dragging.active = true
-  				windows[winZLvl[i]].dragging.diffX = x - windows[winZLvl[i]].x
-  				windows[winZLvl[i]].dragging.diffY = y - windows[winZLvl[i]].y
+				dragging = true
+				dragWin = winZLvl[i]
+				dragX = x - windows[winZLvl[i]].x
+  				dragY = y - windows[winZLvl[i]].y
+  				--windows[winZLvl[i]].dragging.active = true
+  				--windows[winZLvl[i]].dragging.diffX = x - windows[winZLvl[i]].x
+  				--windows[winZLvl[i]].dragging.diffY = y - windows[winZLvl[i]].y
 
   				table.insert(winZLvl, #winZLvl, table.remove(winZLvl, i))
   				debugline = "WindowOrder: " .. winZLvl[1] .. winZLvl[2] .. winZLvl[3] .. winZLvl[4] .. winZLvl[5]
   				break
 			end
 		end
-
-  		--[[
-  		for k,v in  pairs(windows) do
-  			if x > v.x and x < v.x + v.w and y > v.y and y < v.y + v.h
-  				then
-  				v.dragging.active = true
-  				v.dragging.diffX = x - v.x
-  				v.dragging.diffY = y - v.y
-  				--[[
-  				for k1,v1 in pairs(winZLvl) do
-  					if v1==k then
-  						table.insert(winZLvl, #winZLvl, table.remove(winZLvl, v1))
-  					break
-  					end
-  				end
-  				
-  				debugline = "WindowOrder: " .. winZLvl[1] .. winZLvl[2] .. winZLvl[3] .. winZLvl[4] .. winZLvl[5]
-  				break
-  			end
-  		end
-  		--]]
 	end
 end
 
 function love.update(dt)
+	if dragging then
+		windows[dragWin].x = love.mouse.getX() - dragX
+		windows[dragWin].y = love.mouse.getY() - dragY
+	end
+	--[[
 	for k,v in  pairs(windows) do
   		if v.dragging.active == true
   			then
@@ -134,13 +106,17 @@ function love.update(dt)
 			v.y = love.mouse.getY() - v.dragging.diffY
 		end
   	end
+  	]]
 end
 
 function love.mousereleased(x, y, button)
 	if button == "l" then
+		dragging = false
+		--[[
 		for k,v in  pairs(windows) do
   				v.dragging.active = false
   		end
+  		--]]
 	end
 end
 

@@ -1,7 +1,6 @@
 TODO
 
 Stop windows from overlapping
-Oppimize the dragging code
 
 work on menus
 	add/remove windows
@@ -17,3 +16,7 @@ fiddle some more with colorthemes
 	getthemeinfo
 	createtheme
 	savethemeinfo to json
+
+DONE(most recent first)
+
+Oppimized the dragging code
