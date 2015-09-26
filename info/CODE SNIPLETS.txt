@@ -12,4 +12,13 @@ CODE SNIPLETTS
 	
 
 	lua_value = JSON:decode(pretty_json_text) -- decode example
-	--]]
+
+
+--reading a file
+
+	function readAll(file)
+	    local f = io.open(file, "rb")
+	    local content = f:read("*all")
+	    f:close()
+	    return content
+	end
