@@ -4,11 +4,11 @@ color = (loadfile "colors.lua")()
 function love.load()
 	--starting test windows
 	windows = {	
-		{title = "window1", cn = 1, x = 10, y = 10+20, w = 100, h = 100},
-		{title = "window2", cn = 4, x = 10, y = 120+20, w = 100, h = 100},
-		{title = "window3", cn = 7, x = 10, y = 230+20, w = 100, h = 100},
-		{title = "window4", cn = 10, x = 10, y = 340+20, w = 100, h = 100},
-		{title = "window5", cn = 13, x = 10, y = 450+20, w = 100, h = 100}
+		{title = "Window1", cn = 1, x = 10, y = 10+20, w = 100, h = 100},
+		{title = "Window2", cn = 4, x = 10, y = 120+20, w = 100, h = 100},
+		{title = "Window3", cn = 7, x = 10, y = 230+20, w = 100, h = 100},
+		{title = "Window4", cn = 10, x = 10, y = 340+20, w = 100, h = 100},
+		{title = "Window5", cn = 13, x = 10, y = 450+20, w = 100, h = 100}
 	}
 
 	--starting Z level for windows
@@ -23,12 +23,14 @@ function love.load()
 	love.graphics.setLineWidth(1)
 	love.graphics.setLineStyle("rough")
 	love.graphics.setBackgroundColor(colortheme[1])
-	fontTitle = love.graphics.newFont("fonts/Fipps-Regular.otf", 12)
-	fontWin = love.graphics.newFont("fonts/marietta-seven.ttf", 8)
+	fontTitle = love.graphics.newFont("fonts/UbuntuMono-B.ttf", 20)
+	fontWin = love.graphics.newFont("fonts/UbuntuMono-R.ttf", 14)
 	love.graphics.setFont( fontWin )
 
 	allowWinOverlap = false
 	allowDragging = true
+
+	allowLineOverlap = false --if true, have lines run over the same pixels when possible, if false, Lines must not do that.
 
 	dragging = false
 	dragWin = nil
@@ -115,7 +117,7 @@ function drawwindow(x,y,h,w,cn,t)
 	love.graphics.setColor( colortheme[cn+2])
 	love.graphics.rectangle("fill", x+5, y+20, w-10, h-25)
 	love.graphics.setFont( fontWin )
-	if t ~= nil then love.graphics.print(t, x+5+2, y+5+3) end
+	if t ~= nil then love.graphics.print(t, x+5+2, y+5) end
 	--TODO add component drawing here
 	--Change cn to color?
 end
@@ -144,7 +146,7 @@ function drawmenu(cn) --color number, accent color number
 	--draw title
 	love.graphics.setColor( colortheme[cn+2])
 	love.graphics.setFont( fontTitle )
-	love.graphics.printf( "CableZ", 0, 0-5, love.graphics.getWidth(), "center" )
+	love.graphics.printf( "CableZ", 0, 0+2, love.graphics.getWidth(), "center" )
 
 	--Change cn to color?
 end

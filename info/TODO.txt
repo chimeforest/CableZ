@@ -17,6 +17,8 @@ fiddle some more with colorthemes
 	createtheme
 	savethemeinfo to json
 
+rectangle selection
+
 DONE(most recent first)
 
 Oppimized the dragging code
