@@ -19,7 +19,7 @@ function love.load()
 		i = i+1
 	end
 
-	colortheme = color.set.earthtone
+	colortheme = color.set.foresttone
 	love.graphics.setLineWidth(1)
 	love.graphics.setLineStyle("rough")
 	love.graphics.setBackgroundColor(colortheme[1])
@@ -36,6 +36,11 @@ function love.load()
 	dragWin = nil
 	dragX = 0
 	dragY = 0
+
+	isMenuOpen = false
+	isDialOpen = false
+
+	--print(color.rgb2hex(color.hsv2rgb({59.791666666667,72.039473684211,100,100})))
 	
 
 	debugline = "debugline"
@@ -63,30 +68,37 @@ end
 
 function love.mousepressed(x, y, button)
 	--debugline = "mousepressed: " .. x .. y .. button
-  	if button == "l" then
-  		if y < 20 then
-  			--clicked on the menu
-  			if x > love.graphics.getWidth() - 20 then love.event.quit() --clicked on the X to close
-  			elseif x > love.graphics.getWidth() - 40 and x < love.graphics.getWidth() - 20 then love.window.minimize() --clicked on the - to minimize 
-  			end
-  		else
-	  		if allowDragging then
-		  		for i=#winZLvl,1, -1 do
-		  			--debugline = ( x .. " " .. y .. " " .. button .. "," .. winZLvl[i] .. " " .. windows[winZLvl[i]].title ..
-		  			--	":" .. windows[winZLvl[i]].x .. " " .. windows[winZLvl[i]].x + windows[winZLvl[i]].w  .. "," ..
-		  			--		   windows[winZLvl[i]].y .. " " .. windows[winZLvl[i]].y + windows[winZLvl[i]].h)
+	--put in lines for isMenuOpen and isDialogOpen
+	if isDialogOpen then -- a dialog is open
 
-					if x > windows[winZLvl[i]].x and x < windows[winZLvl[i]].x + windows[winZLvl[i]].w 
-						and y > windows[winZLvl[i]].y and y < windows[winZLvl[i]].y + windows[winZLvl[i]].h 
-					then
-						dragging = true
-						dragWin = winZLvl[i]
-						dragX = x - windows[winZLvl[i]].x
-		  				dragY = y - windows[winZLvl[i]].y
+	elseif isMenuOpen then --a menu is open
 
-		  				table.insert(winZLvl, #winZLvl, table.remove(winZLvl, i))
-		  				debugline = "WindowOrder: " .. winZLvl[1] .. winZLvl[2] .. winZLvl[3] .. winZLvl[4] .. winZLvl[5]
-		  				break
+	else -- neither dialog or manu is open.
+	  	if button == "l" then
+	  		if y < 20 then
+	  			--clicked on the menu
+	  			if x > love.graphics.getWidth() - 20 then love.event.quit() --clicked on the X to close
+	  			elseif x > love.graphics.getWidth() - 40 and x < love.graphics.getWidth() - 20 then love.window.minimize() --clicked on the - to minimize 
+	  			end
+	  		else
+		  		if allowDragging then
+			  		for i=#winZLvl,1, -1 do
+			  			--debugline = ( x .. " " .. y .. " " .. button .. "," .. winZLvl[i] .. " " .. windows[winZLvl[i]].title ..
+			  			--	":" .. windows[winZLvl[i]].x .. " " .. windows[winZLvl[i]].x + windows[winZLvl[i]].w  .. "," ..
+			  			--		   windows[winZLvl[i]].y .. " " .. windows[winZLvl[i]].y + windows[winZLvl[i]].h)
+
+						if x > windows[winZLvl[i]].x and x < windows[winZLvl[i]].x + windows[winZLvl[i]].w 
+							and y > windows[winZLvl[i]].y and y < windows[winZLvl[i]].y + windows[winZLvl[i]].h 
+						then
+							dragging = true
+							dragWin = winZLvl[i]
+							dragX = x - windows[winZLvl[i]].x
+			  				dragY = y - windows[winZLvl[i]].y
+
+			  				table.insert(winZLvl, #winZLvl, table.remove(winZLvl, i))
+			  				debugline = "WindowOrder: " .. winZLvl[1] .. winZLvl[2] .. winZLvl[3] .. winZLvl[4] .. winZLvl[5]
+			  				break
+						end
 					end
 				end
 			end

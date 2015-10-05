@@ -1,4 +1,6 @@
 JSON = (loadfile "JSON.lua")()
+utl = (loadfile "utl.lua")()
+
 color = {}
 
 --functions
@@ -18,6 +20,13 @@ color.hex2rgb = function(h)
 	return nc
 end
 
+color.rgb2hex = function(rgb)
+	local hex = ""
+
+	hex = utl.math.dec2hex(rgb[1]) .. utl.math.dec2hex(rgb[2]) .. utl.math.dec2hex(rgb[3]) .. utl.math.dec2hex(rgb[4])
+
+	return hex
+end
 
 color.brightness = function(c, p) --color.adjust(c, h, s, b/v, a)
 	local nc = {}
@@ -31,22 +40,202 @@ color.brightness = function(c, p) --color.adjust(c, h, s, b/v, a)
 	return nc
 end
 
-color.rgb2hex = function(r)
-	local h = {}
+color.rgb2hsv = function(rgb, round)
+	local hsv = {}
 
-	return h
+	--normalize the rgb values between 0 and 1
+	local red = rgb[1]/255
+	local green = rgb[2]/255
+	local blue = rgb[3]/255
+	local alpha = rgb[4]/255
+
+	local minValue = math.min(red,math.min(green,blue))
+	local maxValue = math.max(red,math.max(green,blue))
+	local delta = maxValue - minValue
+
+	local h
+	local s
+	local v = maxValue
+
+	--calculate the hue, degrees between 0 and 360
+	if red > green and red > blue then
+		if green >= blue then
+			if delta == 0 then
+				h=0
+			else
+				h = 60*(green-blue)/delta
+			end
+		else
+			h = 60 * (green-blue)/delta + 360
+		end
+	elseif green > blue then
+		h = 60 * (blue-red)/delta+120
+	else  -- blue is max
+		h = 60 * (red-green)/delta+240
+	end
+
+	--calculate saturation (between 0 and 1)
+	if maxValue == 0 then
+		s = 0
+	else
+		s = 1 - (minValue/maxValue)
+	end
+
+	--scale saturation to a value between 0 and 11
+
+	s = s * 100
+	v = v * 100
+	alpha = alpha * 100
+
+	if round then
+		h = math.ceil(h)
+		s = math.ceil(s)
+		v = math.ceil(v)
+		alpha = math.ceil(alpha)
+	end
+
+	hsv[1] = h
+	hsv[2] = s
+	hsv[3] = v
+	hsv[4] = alpha
+
+	--print(hsv[1] .. " " .. hsv[2] .. " " .. hsv[3] .. " " .. hsv[4])
+
+	return hsv
 end
 
-color.hex2rpg = function(h)
-	local r = {}
+color.hsv2rgb = function(hsv)
+	local rgb = {}
 
-	return r
+	local hue = hsv[1]
+	local sat = hsv[2]/100
+	local val = hsv[3]/100
+	local alpha = hsv[4]/100
+
+	local r
+	local g
+	local b
+
+	if sat == 0 then
+		r,g,b = val
+	else
+		local sectorPos = hue/60
+		local sectorNum = math.floor(sectorPos)
+
+		local fractionalSector = sectorPos - sectorNum
+
+		local p = val * (1 - sat)
+		local q = val * (1 - (sat * fractionalSector))
+		local t = val * (1 - (sat * (1 - fractionalSector)))
+
+		--print(sectorNum)
+		if sectorNum == 0 or sectorNum == 6 then
+			r = val
+			g = t
+			b = p
+		elseif sectorNum == 1 then
+			r = q
+			g = val
+			b = p
+		elseif sectorNum == 2 then
+			r = p
+			g = val
+			b = t
+		elseif sectorNum == 3 then
+			r = p
+			g = q
+			b = val
+		elseif sectorNum == 4 then
+			r = t
+			g = p
+			b = val
+		elseif sectorNum == 5 then
+			r = val
+			g = p
+			b = q
+		end
+	end
+
+	rgb[1] = utl.math.round(r*255)
+	rgb[2] = utl.math.round(g*255)
+	rgb[3] = utl.math.round(b*255)
+	rgb[4] = utl.math.round(alpha*255)
+
+	--print(rgb[1] .. " " .. rgb[2] .. " " .. rgb[3] .. " " .. rgb[4])
+
+	return rgb
 end
 
-color.getthemedata = function(t)
+
+color.getThemeData = function(t)
 	local tData = {}
 
+	local rootColor = color.rgb2hsv(t[1])
+
+	for i=2,#t,1 do
+		local curColor = color.rgb2hsv(t[i])
+		local curData = {}
+		
+		for ii=1,4,1 do
+			--TODO FIX, hue is okay, but others should be percentages
+			if ii== 1 then
+				curData[ii] = rootColor[ii] - curColor[ii]
+			else
+				curData[ii] = curColor[ii]/rootColor[ii]
+			end
+			--print("tData["..i.."]: " .. )
+		end
+		tData[i-1] = curData
+	end
+
+	tData.sat = rootColor[2]
+	tData.val = rootColor[3]
+
 	return tData
+end
+
+color.addThemeFromData = function(name,rootColor,themeData, useOrigSV)
+	local set = {}
+
+	hsvColor = color.rgb2hsv(rootColor)
+
+	if useOrigSV then
+		hsvColor[2] = themeData.sat
+		hsvColor[3] = themeData.val
+	end
+	
+
+	set[1] = color.hsv2rgb(hsvColor)
+
+	for i=1,#themeData,1 do
+		local curData = themeData[i]
+		local curColor = {}
+
+		print(i)
+
+		for ii=1,4,1 do
+			if ii == 1 then
+				--value must be between 0 and 360
+				--print(ii)
+				--print (hsvColor[ii])
+				--print (curData[ii])
+				curColor[ii] = hsvColor[ii] + curData[ii]
+				if curColor[ii] > 360 then curColor[ii] = curColor[ii] - 360 end
+				if curColor[ii] < 0 then curColor[ii] = curColor[ii] + 360 end
+			else
+				--value must be between 0 and 100
+				curColor[ii] = hsvColor[ii] * curData[ii]
+				if curColor[ii] > 100 then curColor[ii] = 100 end
+				if curColor[ii] < 0 then curColor[ii] = 0 end
+			end
+		end
+		-- on the 12 iteration: Error: colors.lua:154: attempt to perform arithmetic on local 'r' (a nil value)
+		-- on 12, it's the first time that curdata[ii] is less than 180...
+		print("curColor: " .. curColor[1] .. "," .. curColor[2] .. "," .. curColor[3] .. "," .. curColor[4])
+		set[i+1] = color.hsv2rgb(curColor)
+	end
+
+	color.set[name] = set
 end
 
 --X11
@@ -244,5 +433,8 @@ color.set.cool = {color.hex2rgb("004159"),color.hex2rgb("65a8c4"),color.hex2rgb(
 				color.hex2rgb("00adce"),color.hex2rgb("59d8f1"),color.hex2rgb("9ee7fa"),
 				color.hex2rgb("00c590"),color.hex2rgb("73ebae"),color.hex2rgb("b5f9d3"),}
 --]]
+
+color.addThemeFromData("oceantone", color.MediumBlue, color.getThemeData(color.set.earthtone),true)
+color.addThemeFromData("foresttone", color.ForestGreen, color.getThemeData(color.set.earthtone),true)
 
 return color
