@@ -2,6 +2,12 @@ TODO
 
 Stop windows from overlapping
 
+scroll bars
+
+put menus into their own class
+
+put windows into their own class
+
 work on menus
 	add/remove windows
 	change color theme
@@ -11,14 +17,15 @@ add components to windows
 draw lines between components, but outside windows
 
 fiddle some more with colorthemes
-	rgb2hex
-	hex2rgb
-	getthemeinfo
-	createtheme
 	savethemeinfo to json
 
 rectangle selection
 
 DONE(most recent first)
 
+
+	rgb2hex
+	hex2rgb
+	getthemeinfo
+	createtheme
 Oppimized the dragging code

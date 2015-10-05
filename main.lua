@@ -1,5 +1,7 @@
-JSON = (loadfile "JSON.lua")()
-color = (loadfile "colors.lua")()
+--package.path = package.path .. ';../lib/?.lua;../lib/?'
+--JSON = (loadfile "JSON")()
+loadfile ("./lib/JSON.lua")()
+loadfile ("./lib/colors.lua")()
 
 function love.load()
 	--starting test windows
@@ -19,7 +21,7 @@ function love.load()
 		i = i+1
 	end
 
-	colortheme = color.set.foresttone
+	colortheme = color.scheme.warm
 	love.graphics.setLineWidth(1)
 	love.graphics.setLineStyle("rough")
 	love.graphics.setBackgroundColor(colortheme[1])

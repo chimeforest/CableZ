@@ -1,5 +1,5 @@
-JSON = (loadfile "JSON.lua")()
-utl = (loadfile "utl.lua")()
+loadfile ("./lib/JSON.lua")()
+loadfile ("./lib/utl.lua")()
 
 color = {}
 
@@ -28,16 +28,18 @@ color.rgb2hex = function(rgb)
 	return hex
 end
 
-color.brightness = function(c, p) --color.adjust(c, h, s, b/v, a)
-	local nc = {}
+function color.adjust(c, h, s, v, a)
+	hsvColor = color.rgb2hsv(c)
 
-	for k,v in  pairs(c) do
-		if v == 0 then v = 100 end
-			nc[k] = v * p
-			if nc[k]>255 then nc[k]=255 end
-			if nc[k]<0 then nc[k]=0 end
-	end
-	return nc
+	hsvColor[1] = hsvColor[1] + h
+	if hsvColor[1] > 360 then hsvColor[1] = hsvColor[1] - 360 end
+	if hsvColor[1] < 0 then hsvColor[1] = hsvColor[1] + 360 end
+
+	hsvColor[2] = hsvColor[2] * s
+	hsvColor[3] = hsvColor[3] * v
+	hsvColor[4] = hsvColor[4] * a
+
+	return color.hsv2rgb(hsvColor)
 end
 
 color.rgb2hsv = function(rgb, round)
@@ -167,7 +169,7 @@ color.hsv2rgb = function(hsv)
 end
 
 
-color.getThemeData = function(t)
+color.getSchemeData = function(t)
 	local tData = {}
 
 	local rootColor = color.rgb2hsv(t[1])
@@ -194,7 +196,7 @@ color.getThemeData = function(t)
 	return tData
 end
 
-color.addThemeFromData = function(name,rootColor,themeData, useOrigSV)
+color.schemeFromData = function(rootColor,themeData, useOrigSV)
 	local set = {}
 
 	hsvColor = color.rgb2hsv(rootColor)
@@ -235,7 +237,17 @@ color.addThemeFromData = function(name,rootColor,themeData, useOrigSV)
 		set[i+1] = color.hsv2rgb(curColor)
 	end
 
-	color.set[name] = set
+	return set
+end
+
+function color.schemeFromHexTable(hexTable)
+	set = {}
+
+	for i=1,#hexTable,1 do
+		set[i] = color.hex2rgb(hexTable[i])
+	end
+
+	return set
 end
 
 --X11
@@ -408,33 +420,48 @@ color.add("ccs04903","E1058C")
 
 
 --ColorThemes/Sets from creativecolorschemes.com
-color.set = {}
+color.scheme = {}
 
-color.set.earthtone = {}
-color.set.earthtone[1] = color.hex2rgb("493829")
-color.set.earthtone[2] = color.hex2rgb("816c5b")
-color.set.earthtone[3] = color.hex2rgb("a9a18c")
-color.set.earthtone[4] = color.hex2rgb("613318")
-color.set.earthtone[5] = color.hex2rgb("855723")
-color.set.earthtone[6] = color.hex2rgb("b99c6b")
-color.set.earthtone[7] = color.hex2rgb("8f3b1b")
-color.set.earthtone[8] = color.hex2rgb("d57500")
-color.set.earthtone[9] = color.hex2rgb("dbca60")
-color.set.earthtone[10] = color.hex2rgb("404f24")
-color.set.earthtone[11] = color.hex2rgb("668d3c")
-color.set.earthtone[12] = color.hex2rgb("bdd09f")
-color.set.earthtone[13] = color.hex2rgb("4e6172")
-color.set.earthtone[14] = color.hex2rgb("93929f")
-color.set.earthtone[15] = color.hex2rgb("a3adb8")
+--set scheme one by one
+color.scheme.earthtone = {}
+color.scheme.earthtone[1] = color.hex2rgb("493829")
+color.scheme.earthtone[2] = color.hex2rgb("816c5b")
+color.scheme.earthtone[3] = color.hex2rgb("a9a18c")
+color.scheme.earthtone[4] = color.hex2rgb("613318")
+color.scheme.earthtone[5] = color.hex2rgb("855723")
+color.scheme.earthtone[6] = color.hex2rgb("b99c6b")
+color.scheme.earthtone[7] = color.hex2rgb("8f3b1b")
+color.scheme.earthtone[8] = color.hex2rgb("d57500")
+color.scheme.earthtone[9] = color.hex2rgb("dbca60")
+color.scheme.earthtone[10] = color.hex2rgb("404f24")
+color.scheme.earthtone[11] = color.hex2rgb("668d3c")
+color.scheme.earthtone[12] = color.hex2rgb("bdd09f")
+color.scheme.earthtone[13] = color.hex2rgb("4e6172")
+color.scheme.earthtone[14] = color.hex2rgb("93929f")
+color.scheme.earthtone[15] = color.hex2rgb("a3adb8")
 
-color.set.cool = {color.hex2rgb("004159"),color.hex2rgb("65a8c4"),color.hex2rgb("aacee2"),
+--set scheme using a table and converting hex values to rgb
+color.scheme.cool = {color.hex2rgb("004159"),color.hex2rgb("65a8c4"),color.hex2rgb("aacee2"),
 				color.hex2rgb("8c65d3"),color.hex2rgb("9a93ec"),color.hex2rgb("cab9f1"),
 				color.hex2rgb("0052a5"),color.hex2rgb("413bf7"),color.hex2rgb("81cbf8"),
 				color.hex2rgb("00adce"),color.hex2rgb("59d8f1"),color.hex2rgb("9ee7fa"),
-				color.hex2rgb("00c590"),color.hex2rgb("73ebae"),color.hex2rgb("b5f9d3"),}
---]]
+				color.hex2rgb("00c590"),color.hex2rgb("73ebae"),color.hex2rgb("b5f9d3")}
 
-color.addThemeFromData("oceantone", color.MediumBlue, color.getThemeData(color.set.earthtone),true)
-color.addThemeFromData("foresttone", color.ForestGreen, color.getThemeData(color.set.earthtone),true)
+--set scheme using a funtion which reads hex values
+color.scheme.artdeco = color.schemeFromHexTable({"ef3e5b","f26279","f68fa0",
+												"4b265d","6f5495","a09ed6",
+												"3f647e","688fad","9fc1d3",
+												"00b0b2","52ccce","95d47a",
+												"677c8a","b2a296","c9c9c9",})
+
+color.scheme.warm = color.schemeFromHexTable({"973f0d","ac703d","c38e63",
+											"e49969","e5ae86","eec5a9",
+											"6e7649","9d9754","c7c397",
+											"b4a851","dfd27c","e7e3b5",
+											"846d74","b7a6ad","d3c9ce",})
+
+--set scheme using data from another scheme and a new root color
+color.scheme.oceantone =color.schemeFromData(color.MediumBlue, color.getSchemeData(color.scheme.earthtone),true)
+color.scheme.foresttone=color.schemeFromData(color.ForestGreen, color.getSchemeData(color.scheme.earthtone),true)
 
 return color
