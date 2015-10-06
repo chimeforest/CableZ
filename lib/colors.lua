@@ -1,5 +1,5 @@
-loadfile ("./lib/JSON.lua")()
-loadfile ("./lib/utl.lua")()
+love.filesystem.load ("lib/JSON.lua")()
+love.filesystem.load ("lib/utl.lua")()
 
 color = {}
 
@@ -213,7 +213,7 @@ color.schemeFromData = function(rootColor,themeData, useOrigSV)
 		local curData = themeData[i]
 		local curColor = {}
 
-		print(i)
+		--print(i)
 
 		for ii=1,4,1 do
 			if ii == 1 then
@@ -233,7 +233,7 @@ color.schemeFromData = function(rootColor,themeData, useOrigSV)
 		end
 		-- on the 12 iteration: Error: colors.lua:154: attempt to perform arithmetic on local 'r' (a nil value)
 		-- on 12, it's the first time that curdata[ii] is less than 180...
-		print("curColor: " .. curColor[1] .. "," .. curColor[2] .. "," .. curColor[3] .. "," .. curColor[4])
+		--print("curColor: " .. curColor[1] .. "," .. curColor[2] .. "," .. curColor[3] .. "," .. curColor[4])
 		set[i+1] = color.hsv2rgb(curColor)
 	end
 

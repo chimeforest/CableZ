@@ -1,7 +1,8 @@
 --package.path = package.path .. ';../lib/?.lua;../lib/?'
 --JSON = (loadfile "JSON")()
-loadfile ("./lib/JSON.lua")()
-loadfile ("./lib/colors.lua")()
+love.filesystem.load ("lib/JSON.lua")()
+love.filesystem.load ("lib/colors.lua")()
+love.filesystem.load ("lib/menu.lua")()
 
 function love.load()
 	--starting test windows
@@ -21,29 +22,33 @@ function love.load()
 		i = i+1
 	end
 
-	colortheme = color.scheme.warm
+	colorScheme = color.scheme.warm
 	love.graphics.setLineWidth(1)
 	love.graphics.setLineStyle("rough")
-	love.graphics.setBackgroundColor(colortheme[1])
-	fontTitle = love.graphics.newFont("fonts/UbuntuMono-B.ttf", 20)
+	love.graphics.setBackgroundColor(colorScheme[1])
+
+	
 	fontWin = love.graphics.newFont("fonts/UbuntuMono-R.ttf", 14)
 	love.graphics.setFont( fontWin )
 
 	allowWinOverlap = false
 	allowDragging = true
 
-	allowLineOverlap = false --if true, have lines run over the same pixels when possible, if false, Lines must not do that.
+	--allowLineOverlap = false --if true, have lines run over the same pixels when possible, if false, Lines must not do that.
 
 	dragging = false
 	dragWin = nil
 	dragX = 0
 	dragY = 0
 
-	isMenuOpen = false
-	isDialOpen = false
+	--isMenuOpen = false
+	--isDialOpen = false
 
 	--print(color.rgb2hex(color.hsv2rgb({59.791666666667,72.039473684211,100,100})))
-	
+
+	menu.load(colorScheme)
+	menu.font = love.graphics.newFont("fonts/UbuntuMono-B.ttf", 20)
+
 
 	debugline = "debugline"
 
@@ -63,44 +68,34 @@ function love.draw()
 
 	--draw lines next
 
-	drawmenu(2) --menu is always on top of windows and lines
+	menu.draw() --menu is always on top of windows and lines
 
 	love.graphics.print(debugline, 10, love.graphics.getHeight() - 20)
 end
 
 function love.mousepressed(x, y, button)
 	--debugline = "mousepressed: " .. x .. y .. button
-	--put in lines for isMenuOpen and isDialogOpen
-	if isDialogOpen then -- a dialog is open
 
-	elseif isMenuOpen then --a menu is open
-
-	else -- neither dialog or manu is open.
+	if menu.onClick(x,y,button) then -- if menu is clicked don't worry about other stuff
+	else
 	  	if button == "l" then
-	  		if y < 20 then
-	  			--clicked on the menu
-	  			if x > love.graphics.getWidth() - 20 then love.event.quit() --clicked on the X to close
-	  			elseif x > love.graphics.getWidth() - 40 and x < love.graphics.getWidth() - 20 then love.window.minimize() --clicked on the - to minimize 
-	  			end
-	  		else
-		  		if allowDragging then
-			  		for i=#winZLvl,1, -1 do
-			  			--debugline = ( x .. " " .. y .. " " .. button .. "," .. winZLvl[i] .. " " .. windows[winZLvl[i]].title ..
-			  			--	":" .. windows[winZLvl[i]].x .. " " .. windows[winZLvl[i]].x + windows[winZLvl[i]].w  .. "," ..
-			  			--		   windows[winZLvl[i]].y .. " " .. windows[winZLvl[i]].y + windows[winZLvl[i]].h)
+	  		if allowDragging then
+		  		for i=#winZLvl,1, -1 do
+		  			--debugline = ( x .. " " .. y .. " " .. button .. "," .. winZLvl[i] .. " " .. windows[winZLvl[i]].title ..
+		  			--	":" .. windows[winZLvl[i]].x .. " " .. windows[winZLvl[i]].x + windows[winZLvl[i]].w  .. "," ..
+		  			--		   windows[winZLvl[i]].y .. " " .. windows[winZLvl[i]].y + windows[winZLvl[i]].h)
 
-						if x > windows[winZLvl[i]].x and x < windows[winZLvl[i]].x + windows[winZLvl[i]].w 
-							and y > windows[winZLvl[i]].y and y < windows[winZLvl[i]].y + windows[winZLvl[i]].h 
-						then
-							dragging = true
-							dragWin = winZLvl[i]
-							dragX = x - windows[winZLvl[i]].x
-			  				dragY = y - windows[winZLvl[i]].y
+					if x > windows[winZLvl[i]].x and x < windows[winZLvl[i]].x + windows[winZLvl[i]].w 
+						and y > windows[winZLvl[i]].y and y < windows[winZLvl[i]].y + windows[winZLvl[i]].h 
+					then
+						dragging = true
+						dragWin = winZLvl[i]
+						dragX = x - windows[winZLvl[i]].x
+		  				dragY = y - windows[winZLvl[i]].y
 
-			  				table.insert(winZLvl, #winZLvl, table.remove(winZLvl, i))
-			  				debugline = "WindowOrder: " .. winZLvl[1] .. winZLvl[2] .. winZLvl[3] .. winZLvl[4] .. winZLvl[5]
-			  				break
-						end
+		  				table.insert(winZLvl, #winZLvl, table.remove(winZLvl, i))
+		  				debugline = "WindowOrder: " .. winZLvl[1] .. winZLvl[2] .. winZLvl[3] .. winZLvl[4] .. winZLvl[5]
+		  				break
 					end
 				end
 			end
@@ -113,55 +108,30 @@ function love.update(dt)
 		windows[dragWin].x = love.mouse.getX() - dragX
 		windows[dragWin].y = love.mouse.getY() - dragY
 	end
+	local winX, winY = love.window.getPosition()
+	debugline = "mainwindow " ..  winX .. "," .. winY .."    mouse " .. love.mouse.getX() ..","..love.mouse.getY() 
+	menu.update(dt)
 end
 
 function love.mousereleased(x, y, button)
 	if button == "l" then
 		dragging = false
 	end
+	menu.mousereleased(x,y,button)
 end
 
 function drawwindow(x,y,h,w,cn,t)
 	love.graphics.setLineWidth(1)
-	love.graphics.setColor( colortheme[cn])
+	love.graphics.setColor( colorScheme[cn])
 	love.graphics.rectangle("fill", x, y, w, h)
-	love.graphics.setColor( colortheme[cn+1])
+	love.graphics.setColor( colorScheme[cn+1])
 	love.graphics.rectangle("fill", x+5, y+5, w-10, h-90)
 	love.graphics.rectangle("line", x, y, w, h)
-	love.graphics.setColor( colortheme[cn+2])
+	love.graphics.setColor( colorScheme[cn+2])
 	love.graphics.rectangle("fill", x+5, y+20, w-10, h-25)
 	love.graphics.setFont( fontWin )
 	if t ~= nil then love.graphics.print(t, x+5+2, y+5) end
 	--TODO add component drawing here
-	--Change cn to color?
-end
-
-function drawmenu(cn) --color number, accent color number
-	love.graphics.setLineWidth(3)
-	love.graphics.setColor( colortheme[cn])
-	love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), 20)
-	
-
-	--draw [X] close
-	love.graphics.setColor( colortheme[cn+2])
-	love.graphics.line(love.graphics.getWidth()-20, 0, love.graphics.getWidth()-2, 20-1)
-	love.graphics.line(love.graphics.getWidth(), 0, love.graphics.getWidth()-20, 20)
-
-	--draw [-] minimize
-	
-	love.graphics.line(love.graphics.getWidth()-40, 10, love.graphics.getWidth()-20, 10)
-
-	--draw accents
-	love.graphics.setColor( colortheme[cn+1])
-	love.graphics.rectangle("line", 2, 1, love.graphics.getWidth()-2, 20-1)
-	love.graphics.line(love.graphics.getWidth()-20, 0, love.graphics.getWidth()-20, 20)
-	love.graphics.line(love.graphics.getWidth()-40, 0, love.graphics.getWidth()-40, 20)
-
-	--draw title
-	love.graphics.setColor( colortheme[cn+2])
-	love.graphics.setFont( fontTitle )
-	love.graphics.printf( "CableZ", 0, 0+2, love.graphics.getWidth(), "center" )
-
 	--Change cn to color?
 end
 
